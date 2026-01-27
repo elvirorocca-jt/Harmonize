@@ -19,6 +19,7 @@
 
 import Foundation
 import HarmonizeSemantics
+import HarmonizeUtils
 
 /// The default Harmonize scope builder implementation.
 /// Provides all declarations and files from a given path.
@@ -36,23 +37,26 @@ internal class HarmonizeScopeBuilder {
         includingOnly: [String],
         exclusions: [String]
     ) -> String {
+        let fileKey = file.description
         let folderKey = folder ?? "nil"
         let inclusionsKey = includingOnly.joined(separator: ",")
         let exclusionsKey = exclusions.joined(separator: ",")
-        return "folder:\(folderKey)|including:\(inclusionsKey)|excluding:\(exclusionsKey)"
+        return "file:\(fileKey)|folder:\(folderKey)|including:\(inclusionsKey)|excluding:\(exclusionsKey)"
     }
 
-    private var filesCache: [String: [SwiftSourceCode]] = [:]
+    /// Shared cache across all HarmonizeScopeBuilder instances.
+    /// This allows different builders to share already-loaded files, avoiding redundant file discovery and parsing.
+    private static let sharedFilesCache: ConcurrentDictionary<String, [SwiftSourceCode]> = ConcurrentDictionary()
 
     private var files: [SwiftSourceCode] {
         let key = cacheKey(folder: folder, includingOnly: includingOnly, exclusions: exclusions)
 
-        if let cachedFiles = filesCache[key] {
+        if let cachedFiles = Self.sharedFilesCache[key] {
             return cachedFiles
         }
 
         let newFiles = getFiles(folder: folder, inclusions: includingOnly, exclusions: exclusions)
-        filesCache[key] = newFiles
+        Self.sharedFilesCache[key] = newFiles
 
         return newFiles
     }
