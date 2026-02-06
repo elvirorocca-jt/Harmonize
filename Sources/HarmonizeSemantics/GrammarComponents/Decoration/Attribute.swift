@@ -149,10 +149,6 @@ public extension Attribute {
                     
                     return Argument(label: $0.label?.text, value: expressionAsString)
                 }
-            case .token(let value):
-                [Argument(label: nil, value: value.text)]
-            case .string(let value):
-                [Argument(label: nil, value: value.trimmedDescription)]
             case .availability(let values):
                 values.compactMap { availability(from: $0.argument) }
             case .specializeArguments(let values):
@@ -169,26 +165,16 @@ public extension Attribute {
                 [Argument(label: nil, value: value.trimmedDescription)]
             case .backDeployedArguments(let value):
                 [Argument(label: value.beforeLabel.text, value: value.platforms.map { $0.platformVersion.description}.joined(separator: ","))]
-            case .conventionArguments(let value):
-                [Argument(label: nil, value: value.conventionLabel.text)]
-            case .conventionWitnessMethodArguments(let value):
-                [Argument(label: nil, value: value.protocolName.text)]
-            case .opaqueReturnTypeOfAttributeArguments(let value):
-                [Argument(label: nil, value: value.mangledName.trimmedDescription)]
-            case .exposeAttributeArguments(let value):
-                [Argument(label: nil, value: value.trimmedDescription)]
             case .originallyDefinedInArguments(let value):
                 [Argument(label: nil, value: value.trimmedDescription)]
-            case .underscorePrivateAttributeArguments(let value):
-                [Argument(label: nil, value: value.sourceFileLabel.text)]
             case .dynamicReplacementArguments(let value):
                 [Argument(label: nil, value: value.declName.trimmedDescription)]
-            case .unavailableFromAsyncArguments(_):
-                []
             case .effectsArguments(let values):
                 values.map { Argument(label: nil, value: $0.text) }
             case .documentationArguments(let values):
                 values.map { Argument(label: nil, value: $0.label.text) }
+            case .abiArguments(let value):
+                [Argument(label: nil, value: value.trimmedDescription)]
             }
         }
         
